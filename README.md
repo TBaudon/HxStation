@@ -1,4 +1,3 @@
 HxStation
 =========
-
-A tool to ease team work with haxe and building.
+A tool to ease team work and building fpr haxe.

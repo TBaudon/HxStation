@@ -1,0 +1,4 @@
+-cp src
+-main fr.tbaudon.hxstation.Main
+-neko bin/HxStation.n
+-dce full
