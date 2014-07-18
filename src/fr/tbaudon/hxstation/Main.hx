@@ -29,7 +29,7 @@ class Main
 			Sys.setCwd(args.pop());
 		
 		var station = new HxStation();
-		station.addCommand("snap", Snapshot);
+		station.addCommand("regLib", Snapshot);
 		station.addCommand("setup", Setup);
 		station.run();
 	}
