@@ -1,5 +1,5 @@
 -cp src
 -lib openfl
 -main fr.tbaudon.hxstation.Main
--neko bin/HxStation.n
+-neko run.n
 -debug

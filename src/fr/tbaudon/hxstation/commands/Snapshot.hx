@@ -1,4 +1,5 @@
 package fr.tbaudon.hxstation.commands;
+import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 
@@ -10,17 +11,12 @@ class Snapshot extends Command
 {
 	
 	var mPath : String;
-
-	public function new(args : Array<Dynamic>) 
-	{
-		super(args);
-	}
 	
 	override public function run() {
 		if(mArgs.length > 0){
 			mPath = mArgs[0];
 			if (FileSystem.exists(mPath)){
-				var extension = mPath.split('.')[1];
+				var extension = Path.extension(mPath);
 				switch(extension) {
 					case 'xml' : 
 						parseLimeProj(mPath);
@@ -28,7 +24,7 @@ class Snapshot extends Command
 						parseHxProj(mPath);
 				}
 			}else
-				throw new CommandError("No such file");
+				throw new CommandError(mPath + " : no such file");
 		}
 		else
 			throw new CommandError("not enough arguments");
@@ -36,11 +32,11 @@ class Snapshot extends Command
 	
 	function parseHxProj(mPath:String) 
 	{
-		
 	}
 	
 	function parseLimeProj(mPath:String) 
 	{
+		
 		var fileContent = File.getContent(mPath);
 		trace(fileContent);
 	}

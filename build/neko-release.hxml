@@ -1,4 +1,5 @@
 -cp src
 -main fr.tbaudon.hxstation.Main
--neko bin/HxStation.n
+-neko run.n
 -dce full
+--no-traces

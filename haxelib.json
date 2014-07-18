@@ -1,0 +1,8 @@
+{
+	"name" : "HxStation",
+	"url" : "https://github.com/TBaudon/HxStation",
+	"license" : "MIT",
+	"description" : "tool Form team work and build"
+	"version" : "0.0.1",
+	"contributors" : ["Thomas Baudon"]
+}
