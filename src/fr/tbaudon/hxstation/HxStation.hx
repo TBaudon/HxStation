@@ -12,15 +12,26 @@ class HxStation
 	
 	var mArgs : Array<String>;
 	var mCommands : Map<String, Class<Command>>;
+	
+	static var mInstance : HxStation;
+	
+	public static function getInstance() {
+		return mInstance;
+	}
 
 	public function new() 
 	{
 		mArgs = Sys.args();
 		mCommands = new Map<String, Class<Command>>();
+		mInstance = this;
 	}
 	
 	public function addCommand(name : String, command:Class<Command>) {
 		mCommands[name] = command;
+	}
+	
+	public function getCommands() : Map<String, Class<Command>> {
+		return mCommands;
 	}
 	
 	public function run() {
@@ -33,6 +44,7 @@ class HxStation
 				command.run();
 			}catch (e : CommandError) {
 				Sys.println('Error : ' + e.message);
+				Sys.println('\nHelp : ');
 				command.help();
 			}
 		}

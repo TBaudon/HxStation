@@ -1,6 +1,7 @@
 package fr.tbaudon.hxstation;
 import fr.tbaudon.hxstation.commands.Setup;
-import fr.tbaudon.hxstation.commands.RegLib;
+import fr.tbaudon.hxstation.commands.ListDeps;
+import fr.tbaudon.hxstation.commands.Help;
 import haxe.io.Path;
 import sys.FileSystem;
 
@@ -29,8 +30,9 @@ class Main
 			Sys.setCwd(args.pop());
 		
 		var station = new HxStation();
-		station.addCommand("regLib", RegLib);
+		station.addCommand("listdeps", ListDeps);
 		station.addCommand("setup", Setup);
+		station.addCommand("help", Help);
 		station.run();
 	}
 }
