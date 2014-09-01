@@ -19,7 +19,7 @@ class Library
 	public var dev : Bool;
 	public var path : String;
 	
-	public var gitCommit : String;
+	public var gitHead : String;
 	public var gitRemotes : Array<{name : String, path:String}>;
 	
 	static var mHaxelibPath : String;
@@ -53,12 +53,24 @@ class Library
 			path = StringTools.replace(path, '\\', '/');
 			this.path = path;
 			version = currentVersion;
+			getGitRemote();
 		}else{
 			var ver = currentVersion;
 			ver = StringTools.replace(ver, '.', ',');
 			var libPath = mHaxelibPath + name + "/" + ver;
 			path = libPath;
 			version = ver;
+		}
+	}
+	
+	public function getGitRemote() {
+		if (FileSystem.exists(path + '/.git'))
+		{
+			gitRemotes = new Array<{name : String, path:String}>();
+			var gitRef = File.getContent(path + '/.git/HEAD');
+			gitRef = gitRef.substr(5);
+			//gitHead = File.getContent(path + '/.git/' + gitRef);
+			trace(gitRef, FileSystem.exists(path + '/.git/' + gitRef));
 		}
 	}
 	
