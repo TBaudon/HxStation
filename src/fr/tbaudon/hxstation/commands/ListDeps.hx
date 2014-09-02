@@ -37,6 +37,7 @@ class ListDeps extends Command
 				
 				// check used libs dependencies
 				checkDependencies();
+				jsonify();
 			}else
 				throw new CommandError(mPath + " : no such file");
 		}
@@ -44,18 +45,67 @@ class ListDeps extends Command
 			throw new CommandError("not enough arguments");
 	}
 	
+	function jsonify() 
+	{
+		var json = '{"deps" : ' + Json.stringify(mUsedLib) + '}';
+		json = formatJson(json);
+		
+		var file = File.write('deps.json');
+		file.writeString(json);
+		file.close();
+		
+		Sys.println("Deps file written.");
+	}
+	
+	function formatJson(json : String) : String {
+		var nbTab : Int = 0;
+		var i = 0;
+		var inQuote : Bool = false;
+		
+		while (i < json.length) {
+			var char = json.charAt(i);
+			
+			if (char == '"') inQuote = !inQuote;
+			
+			if(!inQuote){
+				if (char == '{' || char == '[')
+					nbTab++;
+				else if (char == '}' || char == ']')
+					nbTab--;
+					
+				if (char == '{' || char == ',' || char == '[')
+				{
+					var stringToInser = "\n";
+					for (j in 0 ... nbTab) stringToInser += '\t';
+					json = json.substr(0, i+1) + stringToInser + json.substr(i+1);
+					i+=stringToInser.length;
+				}
+				
+				if (char == '}' || char == ']')
+				{
+					var stringToInser = "\n";
+					for (j in 0 ... nbTab) stringToInser += '\t';
+					json = json.substr(0, i) + stringToInser + json.substr(i);
+					i+=stringToInser.length;
+				}
+			}
+			
+			i++;
+		}
+		
+		return json;
+	}
+	
 	function checkDependencies() 
 	{
 		var libToCheck = mUsedLib.copy();
-		var checkedLib = new Array<String>();
-		
-		Sys.println('Dependencies : ');
+		var checkedLib = new Array<Library>();
 		
 		while (libToCheck.length > 0) {
 			var currentLib = libToCheck.pop();
-			checkedLib.push(currentLib.name);
+			checkedLib.push(currentLib);
 			
-			Sys.println(currentLib.name + " : " + currentLib.version + " " + currentLib.path);
+			//Sys.println(currentLib.name + " : " + currentLib.version + " " + currentLib.path);
 			
 			var json = Json.parse(File.getContent(currentLib.path + "/haxelib.json"));
 			if (json.dependencies != null) {
@@ -67,13 +117,15 @@ class ListDeps extends Command
 				}
 			}
 		}
+		
+		mUsedLib = checkedLib;
 	}
 	
-	function addToCheck(lib : Library, libToCheck : Array<Library>, checkedLib : Array<String>) : Bool {
+	function addToCheck(lib : Library, libToCheck : Array<Library>, checkedLib : Array<Library>) : Bool {
 		for (a in libToCheck)
 			if (a.name == lib.name) return false;
 		for (b in checkedLib)
-			if (b == lib.name) return false;
+			if (b.name == lib.name) return false;
 		return true;
 	}
 	

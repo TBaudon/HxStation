@@ -46,31 +46,51 @@ class Library
 		var currentVersion = File.getContent(currentFilePath);
 		if (FileSystem.exists(mHaxelibPath + name + "/.dev")) currentVersion = "dev";
 		dev = currentVersion == "dev";
+		version = currentVersion;
 		
 		if (dev) {
 			var devPath =  mHaxelibPath + "/" + name + "/.dev";
 			var path = File.getContent(devPath);
 			path = StringTools.replace(path, '\\', '/');
 			this.path = path;
-			version = currentVersion;
-			getGitRemote();
+			if (FileSystem.exists(path + '/.git'))
+			{
+				getGitHead();
+				getGitRemotes();
+			}
 		}else{
 			var ver = currentVersion;
 			ver = StringTools.replace(ver, '.', ',');
 			var libPath = mHaxelibPath + name + "/" + ver;
 			path = libPath;
-			version = ver;
 		}
 	}
 	
-	public function getGitRemote() {
-		if (FileSystem.exists(path + '/.git'))
-		{
-			gitRemotes = new Array<{name : String, path:String}>();
-			var gitRef = File.getContent(path + '/.git/HEAD');
-			gitRef = gitRef.substr(5);
-			//gitHead = File.getContent(path + '/.git/' + gitRef);
-			trace(gitRef, FileSystem.exists(path + '/.git/' + gitRef));
+	public function getGitHead() {
+		var gitRef = File.getContent(path + '/.git/HEAD');
+		gitRef = gitRef.substr(5); // remove first part before ref path
+		gitRef = gitRef.substr(0, gitRef.length - 1); // remove \n
+		var refPath = new Path(path + '/.git/' + gitRef);
+		gitHead = File.getContent(refPath.toString());
+		gitHead = gitHead.substr(0, gitHead.length - 1);
+	}
+	
+	public function getGitRemotes() {
+		gitRemotes = new Array<{name : String, path:String}>();
+		
+		var config = File.getContent(path + '/.git/config');
+		var lines = config.split('\n');
+		while (lines.length > 0) {
+			var line = lines.shift();
+			var remoteName : String = "";
+			if (line.indexOf('[remote "') == 0) {
+				remoteName = line.substr(9, line.length - 11);
+				
+				while (line != null && line.indexOf('\turl = ') != 0)
+					line = lines.shift();
+				var url = line.substr(7);
+				gitRemotes.push( { name : remoteName, path : url } );
+			}
 		}
 	}
 	
