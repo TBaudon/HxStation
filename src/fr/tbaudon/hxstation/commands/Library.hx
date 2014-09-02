@@ -19,10 +19,9 @@ class Library
 	public var dev : Bool;
 	
 	public var gitHead : String;
-	public var gitRemotes : Array<{name : String, path:String}>;
+	public var gitRemotes : Array<{name : String, url:String}>;
 	
 	static var mHaxelibPath : String;
-	var mPath : String;
 	
 	public static function getHaxelibPath() : String {
 		if (mHaxelibPath == null) {
@@ -51,32 +50,28 @@ class Library
 		if (dev) {
 			var devPath =  mHaxelibPath + "/" + name + "/.dev";
 			var path = File.getContent(devPath);
-			mPath = StringTools.replace(path, '\\', '/');
 			if (FileSystem.exists(path + '/.git'))
 			{
 				getGitHead();
 				getGitRemotes();
 			}
-		}else{
-			var ver = currentVersion;
-			ver = StringTools.replace(ver, '.', ',');
-			mPath = mHaxelibPath + name + "/" + ver;
 		}
 	}
 	
 	public function getGitHead() {
-		var gitRef = File.getContent(mPath + '/.git/HEAD');
+		var path = getPath();
+		var gitRef = File.getContent(path + '/.git/HEAD');
 		gitRef = gitRef.substr(5); // remove first part before ref path
 		gitRef = gitRef.substr(0, gitRef.length - 1); // remove \n
-		var refPath = new Path(mPath + '/.git/' + gitRef);
+		var refPath = new Path(path + '/.git/' + gitRef);
 		gitHead = File.getContent(refPath.toString());
 		gitHead = gitHead.substr(0, gitHead.length - 1);
 	}
 	
 	public function getGitRemotes() {
-		gitRemotes = new Array<{name : String, path:String}>();
+		gitRemotes = new Array<{name : String, url:String}>();
 		
-		var config = File.getContent(mPath + '/.git/config');
+		var config = File.getContent(getPath() + '/.git/config');
 		var lines = config.split('\n');
 		while (lines.length > 0) {
 			var line = lines.shift();
@@ -87,13 +82,23 @@ class Library
 				while (line != null && line.indexOf('\turl = ') != 0)
 					line = lines.shift();
 				var url = line.substr(7);
-				gitRemotes.push( { name : remoteName, path : url } );
+				gitRemotes.push( { name : remoteName, url : url } );
 			}
 		}
 	}
 	
 	public function getPath() {
-		return mPath;
+		var path : String;
+		if (dev) {
+			var devPath =  mHaxelibPath + "/" + name + "/.dev";
+			path = File.getContent(devPath);
+		}else{
+			var ver = version;
+			ver = StringTools.replace(ver, '.', ',');
+			path = mHaxelibPath + name + "/" + ver;
+		}
+		
+		return path;
 	}
 	
 }
