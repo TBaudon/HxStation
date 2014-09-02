@@ -47,53 +47,13 @@ class ListDeps extends Command
 	
 	function jsonify() 
 	{
-		var json = '{"deps" : ' + Json.stringify(mUsedLib) + '}';
-		json = formatJson(json);
+		var json = Json.stringify({deps : mUsedLib}, null, '\t');
 		
 		var file = File.write('deps.json');
 		file.writeString(json);
 		file.close();
 		
 		Sys.println("Deps file written.");
-	}
-	
-	function formatJson(json : String) : String {
-		var nbTab : Int = 0;
-		var i = 0;
-		var inQuote : Bool = false;
-		
-		while (i < json.length) {
-			var char = json.charAt(i);
-			
-			if (char == '"') inQuote = !inQuote;
-			
-			if(!inQuote){
-				if (char == '{' || char == '[')
-					nbTab++;
-				else if (char == '}' || char == ']')
-					nbTab--;
-					
-				if (char == '{' || char == ',' || char == '[')
-				{
-					var stringToInser = "\n";
-					for (j in 0 ... nbTab) stringToInser += '\t';
-					json = json.substr(0, i+1) + stringToInser + json.substr(i+1);
-					i+=stringToInser.length;
-				}
-				
-				if (char == '}' || char == ']')
-				{
-					var stringToInser = "\n";
-					for (j in 0 ... nbTab) stringToInser += '\t';
-					json = json.substr(0, i) + stringToInser + json.substr(i);
-					i+=stringToInser.length;
-				}
-			}
-			
-			i++;
-		}
-		
-		return json;
 	}
 	
 	function checkDependencies() 
@@ -107,7 +67,7 @@ class ListDeps extends Command
 			
 			//Sys.println(currentLib.name + " : " + currentLib.version + " " + currentLib.path);
 			
-			var json = Json.parse(File.getContent(currentLib.path + "/haxelib.json"));
+			var json = Json.parse(File.getContent(currentLib.getPath() + "/haxelib.json"));
 			if (json.dependencies != null) {
 				var libs : Dynamic = json.dependencies;
 				for (field in Reflect.fields(libs)) {

@@ -17,12 +17,12 @@ class Library
 	public var name : String;
 	public var version : String;
 	public var dev : Bool;
-	public var path : String;
 	
 	public var gitHead : String;
 	public var gitRemotes : Array<{name : String, path:String}>;
 	
 	static var mHaxelibPath : String;
+	var mPath : String;
 	
 	public static function getHaxelibPath() : String {
 		if (mHaxelibPath == null) {
@@ -51,8 +51,7 @@ class Library
 		if (dev) {
 			var devPath =  mHaxelibPath + "/" + name + "/.dev";
 			var path = File.getContent(devPath);
-			path = StringTools.replace(path, '\\', '/');
-			this.path = path;
+			mPath = StringTools.replace(path, '\\', '/');
 			if (FileSystem.exists(path + '/.git'))
 			{
 				getGitHead();
@@ -61,16 +60,15 @@ class Library
 		}else{
 			var ver = currentVersion;
 			ver = StringTools.replace(ver, '.', ',');
-			var libPath = mHaxelibPath + name + "/" + ver;
-			path = libPath;
+			mPath = mHaxelibPath + name + "/" + ver;
 		}
 	}
 	
 	public function getGitHead() {
-		var gitRef = File.getContent(path + '/.git/HEAD');
+		var gitRef = File.getContent(mPath + '/.git/HEAD');
 		gitRef = gitRef.substr(5); // remove first part before ref path
 		gitRef = gitRef.substr(0, gitRef.length - 1); // remove \n
-		var refPath = new Path(path + '/.git/' + gitRef);
+		var refPath = new Path(mPath + '/.git/' + gitRef);
 		gitHead = File.getContent(refPath.toString());
 		gitHead = gitHead.substr(0, gitHead.length - 1);
 	}
@@ -78,7 +76,7 @@ class Library
 	public function getGitRemotes() {
 		gitRemotes = new Array<{name : String, path:String}>();
 		
-		var config = File.getContent(path + '/.git/config');
+		var config = File.getContent(mPath + '/.git/config');
 		var lines = config.split('\n');
 		while (lines.length > 0) {
 			var line = lines.shift();
@@ -92,6 +90,10 @@ class Library
 				gitRemotes.push( { name : remoteName, path : url } );
 			}
 		}
+	}
+	
+	public function getPath() {
+		return mPath;
 	}
 	
 }
